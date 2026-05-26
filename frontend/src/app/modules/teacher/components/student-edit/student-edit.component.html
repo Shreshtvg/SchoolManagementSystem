@@ -1,0 +1,227 @@
+<div class="dashboard-container">
+  <button class="btn btn-sm btn-outline-secondary mb-3" (click)="goBack()">← Back to Student List</button>
+  
+  <div *ngIf="isLoading" class="d-flex justify-content-center my-5">
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && student">
+    <h2>Manage: {{ student.firstName }} {{ student.lastName }}</h2>
+
+    <!-- Student Details -->
+    <div class="card shadow mb-4">
+      <div class="card-header bg-primary text-white">
+        <h6 class="m-0 font-weight-bold">Student Details</h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4">
+            <p><strong>Student Name:</strong> {{ student.firstName }} {{ student.lastName }}</p>
+          </div>
+          <div class="col-md-4">
+            <p><strong>Date of Birth:</strong> {{ student.dob || 'N/A' }}</p>
+          </div>
+          <div class="col-md-4">
+            <p><strong>Parent Name:</strong> {{ student.parent?.name || 'N/A' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Marks Section -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card shadow mb-4">
+          <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold">Marks</h6>
+            <button class="btn btn-sm btn-light" (click)="showEditMarks()" *ngIf="!showEditMarksForm">Edit Marks</button>
+          </div>
+          <div class="card-body">
+            <!-- Edit Marks Form -->
+            <div class="mb-4" *ngIf="showEditMarksForm">
+              <h6>Edit Marks for Subjects</h6>
+              <div *ngFor="let subject of subjects" class="mb-3">
+                <label>{{ subject.name || 'Subject ' + subject.id }}</label>
+                <div class="input-group">
+                  <input type="number" 
+                         class="form-control" 
+                         [value]="getMarksForSubject(subject.id)"
+                         (input)="setMarksForSubject(subject.id, $any($event.target).value)"
+                         min="0" 
+                         max="100"
+                         placeholder="Enter marks">
+                  <div class="input-group-append">
+                    <span class="input-group-text">/ 100</span>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-success btn-sm" (click)="saveAllMarks()">Save</button>
+              <button type="button" class="btn btn-secondary btn-sm ml-2" (click)="cancelEditMarks()">Cancel</button>
+            </div>
+
+            <!-- Existing Marks Records -->
+            <div *ngIf="marksRecords.length > 0">
+              <h6>Existing Marks</h6>
+              <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Subject</th>
+                      <th>Marks</th>
+                      <th>Grade</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let mark of marksRecords">
+                      <td>{{ mark.subject?.name || 'Subject ' + mark.subjectId }}</td>
+                      <td>{{ mark.marksObtained || 0 }}</td>
+                      <td>
+                        <span class="badge" [ngClass]="mark.marksObtained >= 40 ? 'badge-success' : 'badge-danger'">
+                          {{ mark.marksObtained >= 40 ? 'PASS' : 'FAIL' }}
+                        </span>
+                      </td>
+                      <td>
+                        <button class="btn btn-sm btn-danger" (click)="deleteMarks(mark.id)" title="Delete">X</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div *ngIf="marksRecords.length === 0" class="text-muted">
+              <p>No marks recorded yet. Add marks using the form above.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attendance Section -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+              <h6 class="m-0 font-weight-bold">Attendance</h6>
+              <button class="btn btn-sm btn-light" (click)="showAddAttendance()" *ngIf="!showAddAttendanceForm">+ Add Attendance</button>
+            </div>
+            <div class="card-body">
+              <!-- Add Attendance Form -->
+              <div class="mb-4" *ngIf="showAddAttendanceForm">
+                <h6>Add New Attendance</h6>
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <label>Month</label>
+                    <select class="form-control" [(ngModel)]="newAttendance.month" (ngModelChange)="onMonthChange($event, 'add')">
+                      <option value="January">January</option>
+                      <option value="February">February</option>
+                      <option value="March">March</option>
+                      <option value="April">April</option>
+                      <option value="May">May</option>
+                      <option value="June">June</option>
+                      <option value="July">July</option>
+                      <option value="August">August</option>
+                      <option value="September">September</option>
+                      <option value="October">October</option>
+                      <option value="November">November</option>
+                      <option value="December">December</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>Attended Days</label>
+                    <input type="number" class="form-control" [(ngModel)]="newAttendance.daysAttended" min="0" step="1" required>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>Total Days</label>
+                    <input type="number" class="form-control" [(ngModel)]="newAttendance.totalWorkingDays" min="0" step="1" required readonly>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-success btn-sm" (click)="addAttendance()">Save</button>
+                <button type="button" class="btn btn-secondary btn-sm ml-2" (click)="cancelAddAttendance()">Cancel</button>
+              </div>
+
+            <!-- Existing Attendance Records -->
+            <div *ngIf="attendanceRecords.length > 0">
+              <h6>Attendance Records</h6>
+              <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th>Attended Days</th>
+                      <th>Total Days</th>
+                      <th>%</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let attendance of attendanceRecords">
+                      <ng-container *ngIf="editingAttendanceId !== attendance.id">
+                        <td>{{ attendance.month }}</td>
+                        <td>{{ attendance.daysAttended || attendance.noOfDaysAttended || 0 }}</td>
+                        <td>{{ attendance.totalWorkingDays || 0 }}</td>
+                        <td>{{ getAttendancePercentage(attendance) | number:'1.1-1' }}%</td>
+                        <td>
+                          <span class="badge" [ngClass]="getAttendanceStatus(attendance) === 'Good Attendance' ? 'badge-success' : 'badge-danger'">
+                            {{ getAttendanceStatus(attendance) }}
+                          </span>
+                        </td>
+                        <td>
+                          <button class="btn btn-sm btn-info mr-1" 
+                                  (click)="startEditAttendance(attendance)" 
+                                  title="Edit">E</button>
+                          <button class="btn btn-sm btn-danger" (click)="deleteAttendance(attendance.id)" title="Delete">X</button>
+                        </td>
+                      </ng-container>
+                      
+                      <!-- Edit Mode -->
+                      <ng-container *ngIf="editingAttendanceId === attendance.id">
+                        <td colspan="6">
+                          <div class="form-row">
+                            <div class="form-group col-md-3">
+                              <select class="form-control form-control-sm" [(ngModel)]="editingAttendanceData.month" (ngModelChange)="onMonthChange($event, 'edit')">
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                              </select>
+                            </div>
+                            <div class="form-group col-md-2">
+                              <input type="number" class="form-control form-control-sm" [(ngModel)]="editingAttendanceData.daysAttended" min="0" step="1">
+                            </div>
+                            <div class="form-group col-md-2">
+                              <input type="number" class="form-control form-control-sm" [(ngModel)]="editingAttendanceData.totalWorkingDays" min="0" step="1" readonly>
+                            </div>
+                            <div class="form-group col-md-5">
+                              <button class="btn btn-success btn-sm" (click)="saveAttendance()">Save</button>
+                              <button class="btn btn-secondary btn-sm ml-1" (click)="cancelEditAttendance()">Cancel</button>
+                            </div>
+                          </div>
+                        </td>
+                      </ng-container>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div *ngIf="attendanceRecords.length === 0" class="text-muted">
+              <p>No attendance records yet. Add attendance using the form above.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

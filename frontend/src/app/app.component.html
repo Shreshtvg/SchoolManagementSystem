@@ -1,0 +1,41 @@
+<div>
+  <nav class="navbar navbar-expand">
+    <!-- Brand is always visible -->
+    <a href="/home" class="navbar-brand">Manhattan School</a>
+
+    <div class="collapse navbar-collapse">
+      <!-- Links for PUBLIC pages (like /login) - but NOT on the home page -->
+      <ng-container *ngIf="!isLoggedIn && currentRoute !== '/home'">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a href="/home" class="nav-link" routerLink="home">Home</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+          <!-- <li class="nav-item">
+            <a href="/register" class="nav-link" routerLink="register">Sign Up</a>
+          </li> -->
+          <!-- <li class="nav-item">
+            <a href="/login" class="nav-link" routerLink="login">Login</a>
+          </li> -->
+        </ul>
+      </ng-container>
+
+      <!-- Links for LOGGED-IN users (on any dashboard) -->
+      <ng-container *ngIf="isLoggedIn">
+        <!-- Empty left side to push content to right -->
+        <ul class="navbar-nav mr-auto"></ul>
+        <!-- Right side: Logout -->
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" style="cursor: pointer;" (click)="logout()">Logout</a>
+          </li>
+        </ul>
+      </ng-container>
+    </div>
+  </nav>
+
+  <div class="container mt-3">
+    <router-outlet></router-outlet>
+  </div>
+</div>

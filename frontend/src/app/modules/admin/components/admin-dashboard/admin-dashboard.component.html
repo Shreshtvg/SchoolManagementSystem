@@ -1,0 +1,222 @@
+<div class="dashboard-container">
+  <h2>Admin Dashboard</h2>
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <!-- Stat Cards -->
+  <div class="row">
+    <div class="col-xl-3 col-md-6 mb-4"><div class="card border-left-primary shadow h-100 py-2"><div class="card-body"><div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Students</div><div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.totalStudents }}</div></div></div></div>
+    <div class="col-xl-3 col-md-6 mb-4"><div class="card border-left-success shadow h-100 py-2"><div class="card-body"><div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Teachers</div><div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.totalTeachers }}</div></div></div></div>
+    <div class="col-xl-3 col-md-6 mb-4"><a routerLink="/admin/fees" class="card bg-info text-white shadow h-100 py-2 text-decoration-none"><div class="card-body"><div class="text-xs font-weight-bold text-uppercase mb-1">Fee Management</div><div class="h5 mb-0 font-weight-bold">Go to Fees Dashboard</div></div></a></div>
+  </div>
+
+  <hr>
+
+  <!-- Tab Navigation -->
+  <ul class="nav nav-tabs">
+    <li class="nav-item"><a class="nav-link" [class.active]="activeTab === 'students'" (click)="switchTab('students')" style="cursor: pointer;">Manage Students</a></li>
+    <li class="nav-item"><a class="nav-link" [class.active]="activeTab === 'teachers'" (click)="switchTab('teachers')" style="cursor: pointer;">Manage Teachers</a></li>
+    <li class="nav-item"><a class="nav-link" [class.active]="activeTab === 'classes'" (click)="switchTab('classes')" style="cursor: pointer;">Manage Classes</a></li>
+  </ul>
+
+  <!-- Tab Content Area -->
+  <div class="tab-content pt-3">
+    
+    <!-- MANAGE STUDENTS TAB -->
+    <div *ngIf="activeTab === 'students'">
+      <!-- Student Add Form -->
+      <div class="card shadow mb-4" *ngIf="showStudentForm && !isStudentEditMode">
+        <div class="card-header"><h6 class="m-0 font-weight-bold text-primary">Add New Student & Parent</h6></div>
+        <div class="card-body">
+          <form (ngSubmit)="onNewStudentSubmit()">
+            <h5>Student Details</h5><hr>
+            <div class="form-row"><div class="form-group col-md-6"><label>First Name</label><input type="text" class="form-control" name="s_firstName" [(ngModel)]="newStudentWithParent.firstName" required></div><div class="form-group col-md-6"><label>Last Name</label><input type="text" class="form-control" name="s_lastName" [(ngModel)]="newStudentWithParent.lastName" required></div></div>
+            <div class="form-row"><div class="form-group col-md-6"><label>Date of Birth</label><input type="date" class="form-control" name="s_dob" [(ngModel)]="newStudentWithParent.dob" required></div><div class="form-group col-md-6"><label>Gender</label><select name="s_gender" class="form-control" [(ngModel)]="newStudentWithParent.gender"><option>Male</option><option>Female</option></select></div></div>
+            <h5 class="mt-4">Parent Details</h5><hr>
+            <div class="form-row"><div class="form-group col-md-6"><label>Parent Full Name</label><input type="text" class="form-control" name="p_name" [(ngModel)]="newStudentWithParent.parentName" required></div><div class="form-group col-md-6"><label>Parent Phone</label><input type="text" class="form-control" name="p_phone" [(ngModel)]="newStudentWithParent.parentPhone" required></div></div>
+            <div class="form-row"><div class="form-group col-md-6"><label>Parent Email</label><input type="email" class="form-control" name="p_email" [(ngModel)]="newStudentWithParent.parentEmail" required></div><div class="form-group col-md-6"><label>Parent Username</label><input type="text" class="form-control" name="p_username" [(ngModel)]="newStudentWithParent.parentUsername" required></div></div>
+            <h5 class="mt-4">Assign to Class</h5><hr>
+            <div class="form-group"><label for="s_classId">Class</label><select id="s_classId" name="s_classId" class="form-control" [(ngModel)]="newStudentWithParent.classId" required><option [ngValue]="null" disabled>Select a class...</option><option *ngFor="let class of classes" [ngValue]="class.id">{{ class.className }} - Section {{ class.section }}</option></select></div>
+            <button type="submit" class="btn btn-success mr-2">Save Student & Parent</button><button type="button" class="btn btn-secondary" (click)="cancelStudentForm()">Cancel</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Student Edit Form -->
+      <div class="card shadow mb-4" *ngIf="showStudentForm && isStudentEditMode">
+        <div class="card-header"><h6 class="m-0 font-weight-bold text-primary">Edit Student</h6></div>
+        <div class="card-body">
+          <form (ngSubmit)="onEditStudentSubmit()">
+            <h5>Student Details</h5><hr>
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label>First Name</label>
+                <input type="text" class="form-control" name="edit_firstName" [(ngModel)]="selectedStudent.firstName" required>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Last Name</label>
+                <input type="text" class="form-control" name="edit_lastName" [(ngModel)]="selectedStudent.lastName" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Assign to Class</label>
+              <select name="edit_classId" class="form-control" [(ngModel)]="selectedStudent.classId">
+                <option [ngValue]="null">-- No class assigned --</option>
+                <option *ngFor="let class of classes" [ngValue]="class.id">{{ class.className }} - Section {{ class.section }}</option>
+              </select>
+            </div>
+            <h5 class="mt-4">Parent Details</h5><hr>
+            <div class="form-group">
+              <label>Parent Email</label>
+              <input type="email" class="form-control" name="edit_parentEmail" [(ngModel)]="selectedStudent.parentEmail" required>
+            </div>
+            <button type="submit" class="btn btn-success mr-2">Update Student</button>
+            <button type="button" class="btn btn-secondary" (click)="cancelStudentForm()">Cancel</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Students List Table -->
+      <div class="card shadow mb-4" *ngIf="!showStudentForm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h6 class="m-0 font-weight-bold text-primary">Students List</h6>
+          <button class="btn btn-primary btn-sm" (click)="showAddStudentForm()">Add Student</button>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <input type="text" class="form-control" placeholder="Search students by name, parent name, class, gender, or ID..." 
+                   [(ngModel)]="studentSearchTerm" (ngModelChange)="applyStudentSearch()">
+          </div>
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Full Name</th>
+                  <th>Parent Name</th>
+                  <th>Class</th>
+                  <th>Date of Birth</th>
+                  <th>Gender</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let student of filteredStudents">
+                  <td>{{ student.id }}</td>
+                  <td>{{ student.firstName }} {{ student.lastName }}</td>
+                  <td>{{ student.parent?.name || 'N/A' }}</td>
+                  <td><span [class.text-muted]="!student.classDetails">{{ student.classDetails ? (student.classDetails.className + ' - Section ' + student.classDetails.section) : 'No class assigned' }}</span></td>
+                  <td>{{ student.dob | date }}</td>
+                  <td>{{ student.gender }}</td>
+                  <td>
+                    <button class="btn btn-info btn-sm mr-2" (click)="showEditStudentForm(student)">Edit</button>
+                    <button class="btn btn-danger btn-sm" (click)="onStudentDelete(student.id)">Delete</button>
+                  </td>
+                </tr>
+                <tr *ngIf="filteredStudents.length === 0">
+                  <td colspan="7" class="text-center text-muted">
+                    {{ studentSearchTerm ? 'No students found matching your search.' : 'No students found.' }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANAGE TEACHERS TAB -->
+    <div *ngIf="activeTab === 'teachers'">
+      <!-- Teacher Add/Edit Form -->
+      <div class="card shadow mb-4" *ngIf="showTeacherForm">
+        <div class="card-header"><h6 class="m-0 font-weight-bold text-primary">{{ isTeacherEditMode ? 'Edit Teacher' : 'Add New Teacher' }}</h6></div>
+        <div class="card-body">
+          <form (ngSubmit)="onTeacherSubmit()">
+            <div class="form-row"><div class="form-group col-md-6"><label for="t_name">Full Name</label><input id="t_name" type="text" class="form-control" name="t_name" [(ngModel)]="selectedTeacher.name" required></div><div class="form-group col-md-6"><label for="t_subject">Subject</label><select id="t_subject" name="t_subject" class="form-control" [(ngModel)]="selectedTeacher.subject" required><option [ngValue]="null" disabled>Select a subject...</option><option *ngFor="let sub of availableSubjects" [ngValue]="sub">{{ sub }}</option></select></div></div>
+            <div class="form-row"><div class="form-group col-md-6"><label for="t_email">Email</label><input id="t_email" type="email" class="form-control" name="t_email" [(ngModel)]="selectedTeacher.email" required [disabled]="isTeacherEditMode"></div><div class="form-group col-md-6"><label for="t_username">Username</label><input id="t_username" type="text" class="form-control" name="t_username" [(ngModel)]="selectedTeacher.username" required [disabled]="isTeacherEditMode"></div></div>
+            <!-- <div class="form-group"><label for="t_classId">Assign as Class Teacher (Optional)</label><select id="t_classId" name="t_classId" class="form-control" [(ngModel)]="selectedTeacher.classId"><option [ngValue]="null">-- Not a Class Teacher --</option><option *ngFor="let class of classes" [ngValue]="class.id" [disabled]="class.teacher && class.teacher.id !== selectedTeacher.id">{{ class.className }} - Section {{ class.section }} <span *ngIf="class.teacher && class.teacher.id !== selectedTeacher.id">(Assigned to {{ class.teacher.name }})</span></option></select></div> -->
+            <div class="alert alert-info small" *ngIf="!isTeacherEditMode">A temporary password will be generated and sent to the teacher's email.</div>
+            <button type="submit" class="btn btn-success mr-2">Save</button><button type="button" class="btn btn-secondary" (click)="cancelTeacherForm()">Cancel</button>
+          </form>
+        </div>
+      </div>
+      <!-- Teachers List Table -->
+      <div class="card shadow mb-4" *ngIf="!showTeacherForm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h6 class="m-0 font-weight-bold text-primary">Teachers List</h6>
+          <button class="btn btn-primary btn-sm" (click)="showAddTeacherForm()">Add Teacher</button>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <input type="text" class="form-control" placeholder="Search teachers by name, subject, email, assigned class, or ID..." 
+                   [(ngModel)]="teacherSearchTerm" (ngModelChange)="applyTeacherSearch()">
+          </div>
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Subject</th>
+                  <th>Assigned Class</th>
+                  <th>Email</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let teacher of filteredTeachersWithClass">
+                  <td>{{ teacher.id }}</td>
+                  <td>{{ teacher.name }}</td>
+                  <td>{{ teacher.subject }}</td>
+                  <td><span [class.text-muted]="teacher.assignedClassName === 'Not Assigned'">{{ teacher.assignedClassName }}</span></td>
+                  <td>{{ teacher.email }}</td>
+                  <td>
+                    <button class="btn btn-info btn-sm mr-2" (click)="showEditTeacherForm(teacher)">Edit</button>
+                    <button class="btn btn-danger btn-sm" (click)="onTeacherDelete(teacher.id)">Delete</button>
+                  </td>
+                </tr>
+                <tr *ngIf="filteredTeachersWithClass.length === 0">
+                  <td colspan="6" class="text-center text-muted">
+                    {{ teacherSearchTerm ? 'No teachers found matching your search.' : 'No teachers found.' }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- MANAGE CLASSES TAB -->
+    <div *ngIf="activeTab === 'classes'">
+      <!-- Class Add/Edit Form -->
+      <div class="card shadow mb-4" *ngIf="showClassForm">
+        <div class="card-header"><h6 class="m-0 font-weight-bold text-primary">{{ isClassEditMode ? 'Edit Class' : 'Add New Class' }}</h6></div>
+        <div class="card-body">
+          <form (ngSubmit)="onClassSubmit()">
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label>Class Name</label>
+                <input type="number" class="form-control" name="c_name" [(ngModel)]="selectedClass.className" 
+                       step="1" min="1" (input)="onClassNameInput($event)" required>
+                <small class="form-text text-muted">Only whole numbers allowed (no decimals)</small>
+              </div>
+              <div class="form-group col-md-6">
+                <label>Section</label>
+                <input type="text" class="form-control" name="c_section" [(ngModel)]="selectedClass.section" 
+                       (input)="onSectionInput($event)" pattern="[A-Za-z]+" required>
+                <small class="form-text text-muted">Only letters allowed (no numbers)</small>
+              </div>
+            </div>
+            <div class="form-group"><label>Assign Class Teacher (Optional)</label><select name="c_teacher" class="form-control" [(ngModel)]="selectedClass.teacherId"><option [ngValue]="null">-- No Teacher Assigned --</option><option *ngFor="let teacher of teachers" [ngValue]="teacher.id">{{ teacher.name }} ({{ teacher.subject }})</option></select></div>
+            <button type="submit" class="btn btn-success mr-2">Save</button><button type="button" class="btn btn-secondary" (click)="cancelClassForm()">Cancel</button>
+          </form>
+        </div>
+      </div>
+      <!-- Classes List Table -->
+      <div class="card shadow mb-4" *ngIf="!showClassForm">
+        <div class="card-header d-flex justify-content-between align-items-center"><h6 class="m-0 font-weight-bold text-primary">Classes List</h6><button class="btn btn-primary btn-sm" (click)="showAddClassForm()">Add Class</button></div>
+        <div class="card-body"><div class="table-responsive"><table class="table table-bordered"><thead><tr><th>ID</th><th>Class</th><th>Section</th><th>Class Teacher</th><th>Actions</th></tr></thead><tbody><tr *ngFor="let class of classes"><td>{{ class.id }}</td><td>{{ class.className }}</td><td>{{ class.section }}</td><td>{{ class.teacher?.name || 'Not Assigned' }}</td><td><button class="btn btn-info btn-sm mr-2" (click)="showEditClassForm(class)">Edit</button><button class="btn btn-danger btn-sm" (click)="onClassDelete(class.id)">Delete</button></td></tr><tr *ngIf="classes.length === 0"><td colspan="5" class="text-center text-muted">No classes found.</td></tr></tbody></table></div></div>
+      </div>
+    </div>
+  </div>
+</div>

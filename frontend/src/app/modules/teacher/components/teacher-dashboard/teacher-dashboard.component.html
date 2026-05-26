@@ -1,0 +1,157 @@
+<div class="dashboard-container">
+  <!-- Header Welcome Message -->
+  <div class="page-header">
+    <h2>Welcome, {{ teacherName | titlecase }}!</h2>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="d-flex justify-content-center my-5">
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Main Dashboard Content -->
+  <div *ngIf="!isLoading">
+    <!-- Row for Profile and Class Info -->
+    <div class="row">
+      <!-- Your Profile Card -->
+      <!-- Your Profile Card -->
+      <div class="col-lg-6">
+        <div class="card shadow mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Your Profile</h6>
+            <button class="btn btn-sm btn-primary" (click)="openProfileEditModal()">Edit Profile</button>
+          </div>
+          <div class="card-body">
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label font-weight-bold">Name:</label>
+              <div class="col-sm-9">
+                <p class="form-control-plaintext">{{ profileData.name || teacherData?.teacher?.name || teacherData?.assignedClass?.teacher?.name || 'N/A' }}</p>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-3 col-form-label font-weight-bold">Subject:</label>
+              <div class="col-sm-9">
+                <p class="form-control-plaintext text-dark">{{ profileData.subject || teacherData?.teacher?.subject || teacherData?.assignedClass?.teacher?.subject || 'N/A' }}</p>
+              </div>
+            </div>
+            <div class="form-group row mb-0">
+              <label class="col-sm-3 col-form-label font-weight-bold">Email:</label>
+              <div class="col-sm-9">
+                <p class="form-control-plaintext">{{ profileData.email || teacherData?.teacher?.email || teacherData?.assignedClass?.teacher?.email || 'N/A' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Assigned Class Card -->
+      <div class="col-lg-6">
+        <div class="card shadow mb-4">
+          <div class="card-header">
+            <h6 class="m-0 font-weight-bold text-success">Your Assigned Class</h6>
+          </div>
+          <div class="card-body">
+            <div *ngIf="teacherData.assignedClass; else noClassAssigned">
+              <h4 class="card-title">{{ teacherData.assignedClass.className }}</h4>
+              <p class="card-text">Section: {{ teacherData.assignedClass.section }}</p>
+            </div>
+            <ng-template #noClassAssigned>
+              <p class="text-muted">You are not assigned as a class teacher to any class.</p>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="my-4">
+
+    <!-- Student Management Section -->
+    <div>
+      <h4 class="mb-3">Your Students</h4>
+      <div class="card shadow">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="thead-light">
+                <tr>
+                  <th>Name</th>
+                  <th>Attendance</th>
+                  <th>Average Marks</th>
+                  <th>Status</th>
+                  <th class="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let student of studentsWithData">
+                  <td><strong>{{ student.firstName }} {{ student.lastName }}</strong></td>
+                  
+                  <!-- Attendance Column -->
+                  <td>
+                    <div>
+                      <span class="font-weight-bold">{{ getAttendancePercentage(student.attendance) | number:'1.1-1' }}%</span>
+                      <span class="badge ml-2"
+                            [ngClass]="getAttendanceStatus(student.attendance) === 'GOOD' ? 'badge-success' : 'badge-danger'">
+                        {{ getAttendanceStatus(student.attendance) }}
+                      </span>
+                    </div>
+                    <small class="text-muted">
+                      <span *ngIf="student.attendance">
+                        {{ student.attendance.daysAttended || student.attendance.noOfDaysAttended || 0 }} / 
+                        {{ student.attendance.totalWorkingDays || 0 }} days
+                      </span>
+                      <span *ngIf="!student.attendance">No attendance recorded</span>
+                    </small>
+                  </td>
+                  
+                  <!-- Average Marks Column -->
+                  <td>
+                    <div *ngIf="student.marks && student.marks.length > 0; else noMarks">
+                      <span class="font-weight-bold">{{ getAverageMarks(student) | number:'1.1-1' }}%</span>
+                      <span class="badge ml-2"
+                            [ngClass]="getAverageMarks(student) >= 40 ? 'badge-success' : 'badge-danger'">
+                        {{ getAverageMarks(student) >= 40 ? 'PASS' : 'FAIL' }}
+                      </span>
+                    </div>
+                    <ng-template #noMarks>
+                      <span class="text-muted">No marks recorded</span>
+                    </ng-template>
+                  </td>
+                  
+                  <!-- Overall Status Column -->
+                  <td>
+                    <span *ngIf="student.marks && student.marks.length > 0 && student.attendance">
+                      <span class="badge" [ngClass]="getOverallStatus(student).badgeClass">
+                        {{ getOverallStatus(student).status }}
+                      </span>
+                    </span>
+                    <span *ngIf="!student.marks || student.marks.length === 0 || !student.attendance"
+                          class="text-muted">-</span>
+                  </td>
+                  
+                  <!-- Actions Column -->
+                  <td class="text-center">
+                    <button class="btn btn-sm btn-primary mr-2" 
+                            [routerLink]="['/teacher/student', student.id]"
+                            title="Edit Student">
+                      Edit
+                    </button>
+                    <button class="btn btn-sm btn-info" 
+                            (click)="onGenerateReport(student)"
+                            title="Generate Report">
+                      Report
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="!studentsWithData || studentsWithData.length === 0">
+                  <td colspan="5" class="text-center text-muted py-4">No students found in your class.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

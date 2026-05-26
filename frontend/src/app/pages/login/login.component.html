@@ -1,0 +1,30 @@
+<div class="col-md-12">
+  <div class="card card-container">
+    <!-- <img id="profile-img" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" class="profile-img-card" /> -->
+    
+    <h3 class="text-center">Login as {{ loginRole | titlecase }}</h3>
+    
+    <form name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" class="form-control" name="username" [(ngModel)]="form.username" required #username="ngModel" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" name="password" [(ngModel)]="form.password" required #password="ngModel" />
+      </div>
+      <div class="form-group">
+        <button class="btn btn-primary btn-block">Login</button>
+      </div>
+      <div class="form-group" *ngIf="f.submitted && isLoginFailed">
+        <div class="alert alert-danger" role="alert">
+          Login failed: {{ errorMessage }}
+        </div>
+      </div>
+    </form>
+    
+    <!-- Conditional links based on the role from the URL -->
+    <a *ngIf="loginRole === 'admin'" routerLink="/register" class="text-center">Don't have an admin account? Sign Up</a>
+    <a *ngIf="loginRole === 'teacher' || loginRole === 'parent'" class="text-center">Contact administrator for an account.</a>
+  </div>
+</div>

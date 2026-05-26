@@ -1,0 +1,58 @@
+<div class="dashboard-container">
+<h2>Manage Students</h2>
+<!-- Add/Edit Form Card -->
+<div class="card shadow mb-4" *ngIf="showForm">
+<div class="card-header py-3">
+<h6 class="m-0 font-weight-bold text-primary">{{ isEditMode ? 'Edit Student' : 'Add New Student' }}</h6>
+</div>
+<div class="card-body">
+<form (ngSubmit)="onSubmit()">
+<div class="form-row">
+<div class="form-group col-md-6"><label for="firstName">First Name</label><input type="text" class="form-control" id="firstName" name="firstName" [(ngModel)]="selectedStudent.firstName" required></div>
+<div class="form-group col-md-6"><label for="lastName">Last Name</label><input type="text" class="form-control" id="lastName" name="lastName" [(ngModel)]="selectedStudent.lastName" required></div>
+</div>
+<div class="form-row">
+<div class="form-group col-md-6"><label for="dob">Date of Birth</label><input type="date" class="form-control" id="dob" name="dob" [(ngModel)]="selectedStudent.dob" required></div>
+<div class="form-group col-md-6"><label for="gender">Gender</label><select id="gender" name="gender" class="form-control" [(ngModel)]="selectedStudent.gender"><option>Male</option><option>Female</option></select></div>
+</div>
+<div class="form-row">
+<div class="form-group col-md-6"><label for="parentId">Parent ID</label><input type="number" class="form-control" id="parentId" name="parentId" [(ngModel)]="selectedStudent.parentId" required></div>
+<div class="form-group col-md-6"><label for="classId">Class ID</label><input type="number" class="form-control" id="classId" name="classId" [(ngModel)]="selectedStudent.classId" required></div>
+</div>
+<button type="submit" class="btn btn-success mr-2">Save</button>
+<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+</form>
+</div>
+</div>
+<!-- Students List Card -->
+<div class="card shadow mb-4" *ngIf="!showForm">
+<div class="card-header py-3 d-flex justify-content-between align-items-center">
+<h6 class="m-0 font-weight-bold text-primary">Students List</h6>
+<button class="btn btn-primary btn-sm" (click)="showAddForm()">Add Student</button>
+</div>
+<div class="card-body">
+<div *ngIf="isLoading" class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>
+<div *ngIf="!isLoading" class="table-responsive">
+<table class="table table-bordered">
+<thead><tr><th>ID</th><th>Full Name</th><th>Parent Name</th><th>Date of Birth</th><th>Gender</th><th>Actions</th></tr></thead>
+<tbody>
+<tr *ngFor="let student of students">
+<td>{{ student.id }}</td>
+<td>{{ student.firstName }} {{ student.lastName }}</td>
+<td>{{ student.parent?.name || 'N/A' }}</td>
+<td>{{ student.dob | date }}</td>
+<td>{{ student.gender }}</td>
+<td>
+<button class="btn btn-info btn-sm mr-2" (click)="showEditForm(student)">Edit</button>
+<button class="btn btn-danger btn-sm" (click)="onDelete(student.id)">Delete</button>
+</td>
+</tr>
+<tr *ngIf="students.length === 0">
+<td colspan="6" class="text-center text-muted">No students found. Add one to get started!</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>

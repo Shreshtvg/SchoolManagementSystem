@@ -1,0 +1,122 @@
+/* Home Page Professional Styling */
+.container {
+  min-height: calc(100vh - 150px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  margin-top: 1rem;
+}
+
+.jumbotron {
+  background: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 4rem 3rem;
+  box-shadow: var(--shadow-xl);
+  max-width: 800px;
+  width: 100%;
+  text-align: center;
+}
+
+.jumbotron h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.jumbotron .lead {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.jumbotron hr {
+  border-top: 2px solid var(--primary-color);
+  width: 100px;
+  margin: 2rem auto;
+  opacity: 1;
+}
+
+.jumbotron p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin-bottom: 2.5rem;
+}
+
+.d-flex {
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-lg {
+  padding: 1rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  min-width: 180px;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: var(--white);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-info {
+  background-color: var(--accent-blue);
+  color: var(--white);
+  border-color: var(--accent-blue);
+}
+
+.btn-info:hover {
+  background-color: #0284c7;
+  border-color: #0284c7;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-success {
+  background-color: var(--accent-green);
+  color: var(--white);
+  border-color: var(--accent-green);
+}
+
+.btn-success:hover {
+  background-color: #059669;
+  border-color: #059669;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+@media (max-width: 768px) {
+  .jumbotron {
+    padding: 2.5rem 1.5rem;
+  }
+  
+  .jumbotron h1 {
+    font-size: 2rem;
+  }
+  
+  .jumbotron .lead {
+    font-size: 1.1rem;
+  }
+  
+  .btn-lg {
+    width: 100%;
+    min-width: auto;
+  }
+}
+

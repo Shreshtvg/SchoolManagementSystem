@@ -1,0 +1,26 @@
+<div class="modal-header">
+  <h4 class="modal-title">Edit Your Profile</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form #profileForm="ngForm">
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" id="name" class="form-control" [value]="profileData.name" disabled>
+    </div>
+    <div class="form-group">
+      <label for="subject">Subject</label>
+      <input type="text" id="subject" class="form-control" [value]="profileData.subject" disabled>
+    </div>
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" class="form-control" name="email" [(ngModel)]="profileData.email" required>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss('Cancel click')">Cancel</button>
+  <button type="button" class="btn btn-primary" (click)="onSave()" [disabled]="!profileForm.form.valid">Save Changes</button>
+</div>

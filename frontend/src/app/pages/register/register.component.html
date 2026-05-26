@@ -1,0 +1,80 @@
+<div class="col-md-12">
+  <div class="card card-container">
+    <h3 class="text-center">Create Administrator Account</h3>
+    <div class="alert alert-info text-center">
+      Use this form for the initial system setup. This can only be done once.
+    </div>
+
+    <form
+      *ngIf="!isSuccessful"
+      name="form"
+      (ngSubmit)="f.form.valid && onSubmit()"
+      #f="ngForm"
+      novalidate
+    >
+      <div class="form-group">
+        <label for="username">Admin Username</label>
+        <input
+          type="text"
+          class="form-control"
+          name="username"
+          [(ngModel)]="form.username"
+          required
+          minlength="3"
+          #username="ngModel"
+        />
+        <!-- Basic validation feedback -->
+        <div class="alert-danger" *ngIf="username.errors && f.submitted">
+          <div *ngIf="username.errors['required']">Username is required.</div>
+          <div *ngIf="username.errors['minlength']">Must be at least 3 characters.</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="email">Admin Email</label>
+        <input
+          type="email"
+          class="form-control"
+          name="email"
+          [(ngModel)]="form.email"
+          required
+          email
+          #email="ngModel"
+        />
+        <div class="alert-danger" *ngIf="email.errors && f.submitted">
+          <div *ngIf="email.errors['required']">Email is required.</div>
+          <div *ngIf="email.errors['email']">Must be a valid email.</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="password">Admin Password</label>
+        <input
+          type="password"
+          class="form-control"
+          name="password"
+          [(ngModel)]="form.password"
+          required
+          minlength="6"
+          #password="ngModel"
+        />
+        <div class="alert-danger" *ngIf="password.errors && f.submitted">
+          <div *ngIf="password.errors['required']">Password is required.</div>
+          <div *ngIf="password.errors['minlength']">Must be at least 6 characters.</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <button class="btn btn-primary btn-block">Create Admin</button>
+      </div>
+      <div class="alert alert-warning" *ngIf="f.submitted && isSignUpFailed">
+        Signup failed!<br />{{ errorMessage }}
+      </div>
+    </form>
+    
+    <div class="text-center">
+      <a routerLink="/login" [queryParams]="{ role: 'admin' }">Already have an account? Log In</a>
+    </div>
+    
+    <div class="alert alert-success" *ngIf="isSuccessful">
+      Registration is successful! You can now log in.
+    </div>
+  </div>
+</div>

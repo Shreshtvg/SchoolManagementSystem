@@ -1,0 +1,13 @@
+<div class="container text-center mt-5">
+  <div class="jumbotron">
+    <h1 class="display-4">Manhattan School</h1>
+    <p class="lead">A Unified Portal for Administrators, Teachers, and Parents.</p>
+    <hr class="my-4">
+    <p>Please select your role to log in and access your dashboard.</p>
+    <div class="d-flex justify-content-center">
+      <a class="btn btn-primary btn-lg mx-2" routerLink="/login" [queryParams]="{ role: 'admin' }">Admin Login</a>
+      <a class="btn btn-info btn-lg mx-2" routerLink="/login" [queryParams]="{ role: 'teacher' }">Teacher Login</a>
+      <a class="btn btn-success btn-lg mx-2" routerLink="/login" [queryParams]="{ role: 'parent' }">Parent Login</a>
+    </div>
+  </div>
+</div>
